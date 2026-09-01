@@ -9,7 +9,8 @@ const PORT = process.env.PORT || 10000;
 
 // Middleware
 app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(express.static('Public'));
+;
 
 // In-memory data store for sessions
 const activeSessions = new Map();
